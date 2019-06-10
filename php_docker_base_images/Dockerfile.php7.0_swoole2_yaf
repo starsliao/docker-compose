@@ -1,0 +1,37 @@
+FROM alpine:3.7
+Maintainer StarsL.cn
+
+RUN echo "https://mirrors.aliyun.com/alpine/v3.7/main/" > /etc/apk/repositories \
+&& echo "https://mirrors.aliyun.com/alpine/v3.7/community/" >> /etc/apk/repositories \
+&& apk add --no-cache wget ca-certificates \
+&& wget -O /etc/apk/keys/phpearth.rsa.pub https://repos.php.earth/alpine/phpearth.rsa.pub \
+&& echo "https://repos.php.earth/alpine/v3.7" >> /etc/apk/repositories \
+&& apk update && apk upgrade \
+#php7
+&& apk add php7.0 php7.0-opcache php7.0-session \
+&& ln -fs /usr/bin/php7.0 /usr/bin/php \
+&& apk add autoconf build-base linux-headers libaio-dev php7.0-dev libstdc++\
+&& ln -fs /usr/bin/php-config7.0 /usr/bin/php-config \
+&& ln -fs /usr/bin/phpize7.0 /usr/bin/phpize \
+#swoole2
+&& cd /root/ \
+&& wget https://codeload.github.com/swoole/swoole-src/tar.gz/v2.0.9 -O swoole-src-2.0.9.tar.gz \
+&& tar -zxf swoole-src-2.0.9.tar.gz \
+&& cd swoole-src-2.0.9/ \
+&& phpize \
+&& ./configure \
+&& make && make install \
+#yaf
+&& cd /root/ \
+&& wget https://codeload.github.com/laruence/yaf/tar.gz/yaf-3.0.4 -O yaf-yaf-3.0.4.tar.gz \
+&& tar -zxf yaf-yaf-3.0.4.tar.gz \
+&& cd yaf-yaf-3.0.4/ \
+&& phpize \
+&& ./configure \
+&& make && make install \
+&& echo -e "extension=yaf.so\nyaf.use_spl_autoload = 1" > /etc/php/7.0/conf.d/99_yaf.ini \
+#clear
+&& apk del libaio-dev php7.0-dev wget autoconf build-base linux-headers libgcc\
+&& rm -rf /root/swoole* /root/yaf* \
+&& rm -rf /var/cache/apk/ && mkdir /var/cache/apk && rm -rf /tmp/*
+ADD php.ini /etc/php/7.0/

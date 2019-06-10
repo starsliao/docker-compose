@@ -1,0 +1,37 @@
+FROM alpine:edge
+Maintainer StarsL.cn
+
+RUN echo "https://mirrors.aliyun.com/alpine/edge/main/" > /etc/apk/repositories \
+&& echo "https://mirrors.aliyun.com/alpine/edge/community/" >> /etc/apk/repositories \
+&& echo "https://mirrors.aliyun.com/alpine/edge/testing/" >> /etc/apk/repositories \
+&& echo "https://mirrors.aliyun.com/alpine/latest-stable/main/" >> /etc/apk/repositories \
+&& echo "https://mirrors.aliyun.com/alpine/latest-stable/community/" >> /etc/apk/repositories \
+&& apk update && apk upgrade \
+#php7
+&& apk add php7 php7-opcache php7-session \
+&& ln -fs /usr/bin/php7 /usr/bin/php \
+&& apk add wget autoconf build-base linux-headers libaio-dev php7-dev libstdc++\
+&& ln -fs /usr/bin/php-config7 /usr/bin/php-config \
+&& ln -fs /usr/bin/phpize7 /usr/bin/phpize \
+#swoole2
+&& cd /root/ \
+&& wget https://codeload.github.com/swoole/swoole-src/tar.gz/v2.2.0 -O swoole-src-2.2.0.tar.gz \
+&& tar -zxf swoole-src-2.2.0.tar.gz \
+&& cd swoole-src-2.2.0/ \
+&& phpize \
+&& ./configure \
+&& make && make install \
+#yaf
+&& cd /root/ \
+&& wget https://codeload.github.com/laruence/yaf/tar.gz/yaf-3.0.8 -O yaf-yaf-3.0.8.tar.gz \
+&& tar -zxf yaf-yaf-3.0.8.tar.gz \
+&& cd yaf-yaf-3.0.8/ \
+&& phpize \
+&& ./configure \
+&& make && make install \
+&& echo "extension=yaf.so" > /etc/php7/conf.d/99_yaf.ini \
+#clear
+&& apk del libaio-dev php7-dev wget autoconf build-base linux-headers libgcc\
+&& rm -rf /root/swoole* /root/yaf* \
+&& rm -rf /var/cache/apk/ && mkdir /var/cache/apk && rm -rf /tmp/*
+ADD php.ini /etc/php7/

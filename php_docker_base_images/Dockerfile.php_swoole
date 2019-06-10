@@ -1,0 +1,29 @@
+FROM alpine:edge
+Maintainer StarsL.cn
+
+RUN echo "https://mirrors.aliyun.com/alpine/edge/main/" > /etc/apk/repositories \
+&& echo "https://mirrors.aliyun.com/alpine/edge/community/" >> /etc/apk/repositories \
+&& echo "https://mirrors.aliyun.com/alpine/edge/testing/" >> /etc/apk/repositories \
+&& echo "https://mirrors.aliyun.com/alpine/latest-stable/main/" >> /etc/apk/repositories \
+&& echo "https://mirrors.aliyun.com/alpine/latest-stable/community/" >> /etc/apk/repositories \
+&& apk update && apk upgrade \
+#php7
+&& apk add php7 \
+&& apk add php7-opcache \
+&& ln -fs /usr/bin/php7 /usr/bin/php \
+#swoole
+&& apk add wget autoconf build-base linux-headers libaio-dev php7-dev libstdc++\
+&& ln -fs /usr/bin/php-config7 /usr/bin/php-config \
+&& ln -fs /usr/bin/phpize7 /usr/bin/phpize \
+&& cd /root/ \
+&& wget https://codeload.github.com/swoole/swoole-src/tar.gz/v4.3.1 -O swoole-src-4.3.1.tar.gz \
+&& tar -zxf swoole-src-4.3.1.tar.gz \
+&& cd swoole-src-4.3.1/ \
+&& phpize \
+&& ./configure \
+&& make && make install \
+&& apk del libaio-dev php7-dev wget autoconf build-base linux-headers libgcc\
+&& rm -rf /root/swoole* \
+#clear
+&& rm -rf /var/cache/apk/ && mkdir /var/cache/apk && rm -rf /tmp/*
+ADD php.ini /etc/php7/

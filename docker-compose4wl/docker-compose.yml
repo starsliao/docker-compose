@@ -1,0 +1,72 @@
+version: "3.7"
+services:
+  nginx:
+    image: nginx:1.15.8-alpine
+    container_name: nginx
+    hostname: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "888:888"
+      - "999:999"
+      - "10000:10000"
+      - "10001:10001"
+      - "37873:37873"
+    networks:
+      - app.server
+    volumes:
+      - /usr/share/zoneinfo/PRC:/etc/localtime
+      - /data/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - /data/nginx/proxy-ws.conf:/etc/nginx/proxy-ws.conf
+      - /data/nginx/proxy.conf:/etc/nginx/proxy.conf
+      - /data/nginx/conf.d:/etc/nginx/conf.d
+      - /data/nginx/logs_proxy:/var/log/nginx_proxy
+
+  redis:
+    image: redis:5.0.3-alpine
+    container_name: redis
+    hostname: redis
+    restart: always
+    command: redis-server --requirepass 38shiav4
+    ports:
+      - "10.200.124.181:6379:6379"
+    networks:
+      - app.server
+    volumes:
+      - /data/redis:/data
+
+  mq:
+    image: rabbitmq:3.7.8-management-alpine
+    container_name: mq
+    hostname: mq
+    restart: always
+    ports:
+      - "10.200.124.181:5672:5672"
+      - "10.200.124.181:15672:15672"
+    networks:
+      - app.server
+    volumes:
+      - /data/rabbitmq:/var/lib/rabbitmq
+
+  mysql:
+    image: mysql:5.7.24
+    container_name: mysql
+    hostname: mysql
+    restart: always
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=5000 --max-connect-errors=5000 --sql-mode=STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION --wait-timeout=1814400 --interactive-timeout=1814400 --open-files-limit=65535 --innodb-buffer-pool-size=2G --max-allowed-packet=500M
+    ports:
+      - "10.200.124.181:3306:3306"
+    networks:
+      - app.server
+    volumes:
+      - /data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ey29WD@df
+
+networks:
+  app.server:
+    name: app.server
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.172.0.0/24

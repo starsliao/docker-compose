@@ -1,0 +1,84 @@
+version: "3.7"
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    hostname: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "888:888"
+    networks:
+      - vest.server
+    volumes:
+      - /usr/share/zoneinfo/PRC:/etc/localtime
+      - /data/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - /data/nginx/proxy-app-ws.conf:/etc/nginx/proxy-app-ws.conf
+      - /data/nginx/proxy-app.conf:/etc/nginx/proxy-app.conf
+      - /data/nginx/conf.d:/etc/nginx/conf.d
+      - /data/nginx/logs_proxy:/var/log/nginx_proxy
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    hostname: redis
+    restart: always
+    command: redis-server --requirepass s53hdiq8
+    ports:
+      - "10.240.2.103:6379:6379"
+    networks:
+      - vest.server
+    volumes:
+      - /usr/share/zoneinfo/PRC:/etc/localtime
+      - /data/redis:/data
+  mongo:
+    image: mongo:3.6.9-stretch
+    container_name: mongo
+    hostname: mongo
+    restart: always
+    command: mongod --directoryperdb
+    ports:
+      - "10.240.2.103:27017:27017"
+    networks:
+      - vest.server
+    volumes:
+      - /usr/share/zoneinfo/PRC:/etc/localtime
+      - /data/mongo:/data/db
+
+  mq:
+    image: rabbitmq:management-alpine
+    container_name: mq
+    hostname: mq
+    restart: always
+    ports:
+      - "10.240.2.103:5672:5672"
+      - "10.240.2.103:15672:15672"
+    networks:
+      - vest.server
+    volumes:
+      - /usr/share/zoneinfo/PRC:/etc/localtime
+      - /data/rabbitmq:/var/lib/rabbitmq
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    hostname: mysql
+    restart: always
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=5000 --max-connect-errors=5000 --sql-mode=STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION --wait-timeout=1814400 --interactive-timeout=1814400 --open-files-limit=65535 --innodb-buffer-pool-size=2G --max-allowed-packet=500M --skip-ssl
+    ports:
+      - "10.240.2.103:3306:3306"
+    networks:
+      - vest.server
+    volumes:
+      - /usr/share/zoneinfo/PRC:/etc/localtime
+      - /data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: sy34WY@cf
+
+networks:
+  vest.server:
+    name: vest.server
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.172.33.0/24

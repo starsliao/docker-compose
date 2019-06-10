@@ -1,0 +1,39 @@
+FROM reg.xxxxxxxx.net/common/alpine_php_with_swoole_yaf:v1_p7.0.33_s2.0.9_y3.0.4_hc
+Maintainer StarsL.cn
+
+RUN apk update && apk upgrade \
+&& apk add \
+php7.0-bcmath \
+php7.0-ctype \
+php7.0-curl \
+php7.0-dom \
+php7.0-fileinfo \
+php7.0-ftp \
+php7.0-gd \
+php7.0-iconv \
+php7.0-json \
+php7.0-mbstring \
+php7.0-mcrypt \
+php7.0-mongodb \
+php7.0-mysqli \
+php7.0-mysqlnd \
+php7.0-openssl \
+php7.0-pcntl \
+php7.0-pdo \
+php7.0-pdo_mysql \
+php7.0-pdo_sqlite \
+php7.0-phar \
+php7.0-posix \
+php7.0-redis \
+php7.0-simplexml \
+php7.0-soap \
+php7.0-sqlite3 \
+php7.0-tokenizer \
+php7.0-xml \
+php7.0-xmlreader \
+php7.0-xmlwriter \
+php7.0-zip \
+vim wget curl bash openssl \
+#公共处理
+&& rm -rf /var/cache/apk/ && mkdir /var/cache/apk && rm -rf /tmp/*
+ADD php.ini.all /etc/php/7.0/php.ini
