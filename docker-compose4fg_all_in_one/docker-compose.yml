@@ -71,3 +71,20 @@ services:
       - /data/riak:/var/lib/riak
       - /data/config/riak/riak.conf:/etc/riak/riak.conf
       - /data/config/riak/riak-cluster.sh:/usr/lib/riak/riak-cluster.sh
+
+  pg:       
+    image: postgres:9.6-alpine
+    container_name: pg
+    hostname: pg
+    restart: always 
+    command: -c 'shared_buffers=512MB' -c 'max_connections=1000'
+    ports:
+      - "5432:5432"
+    network_mode: "host"
+    volumes:
+      - /usr/share/zoneinfo/PRC:/etc/localtime
+      - /data/pg:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${PG_ROOT_PASSWD}
+      POSTGRES_USER: ${PG_ROOT_USER}
+      POSTGRES_DB: ${PG_DB}
