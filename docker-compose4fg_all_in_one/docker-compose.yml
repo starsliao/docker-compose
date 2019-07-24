@@ -41,6 +41,7 @@ services:
     volumes:
       - /usr/share/zoneinfo/PRC:/etc/localtime
       - /data/rabbitmq:/var/lib/rabbitmq
+      - /data/config/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
 
   mysql:
     image: mysql:5.7
