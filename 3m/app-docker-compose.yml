@@ -1,0 +1,88 @@
+version: "2.4"
+services:
+  dao_serve:
+    image: reg.new3m.com/douyu/dao_serve:sit_latest
+    container_name: dao_serve
+    restart: always
+    cpus: 1
+    ports:
+      - 8002:8002
+    network_mode: "host"
+    volumes:
+      - /usr/share/zoneinfo/PRC:/etc/localtime
+      - /data/app/common:/common
+      - /data/app/logs/dao_serve:/src/storage/logs
+    # command: sleep 10000
+    env_file:
+      - ./dy-env
+    healthcheck:
+      test: netstat -nlt | grep 8002 || exit 1
+      interval: 1m
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  api_server:
+    image: reg.new3m.com/douyu/api_server:sit_latest
+    container_name: api_server
+    restart: always
+    cpus: 1
+    ports:
+      - 8003:8003
+    network_mode: "host"
+    volumes:
+      - /usr/share/zoneinfo/PRC:/etc/localtime
+      - /data/app/common:/common
+      - /data/app/res_server:/data/app/res_server
+      # - /data/app/api_server:/src
+      - /data/app/logs/api_server:/src/storage/logs
+    env_file:
+      - ./dy-env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003"]
+      interval: 1m
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  task_worker:
+    image: reg.new3m.com/douyu/task_worker:sit_latest
+    container_name: task_worker
+    restart: always
+    cpus: 1
+    network_mode: "host"
+    volumes:
+      - /usr/share/zoneinfo/PRC:/etc/localtime
+      - /data/app/common:/common
+      - /data/app/res_server:/data/app/res_server
+      - /data/app/logs/task_worker:/src/storage/logs
+    env_file:
+      - ./dy-env
+    healthcheck:
+      test: supervisorctl status|grep -v RUNNING && exit 1 || exit 0
+      interval: 1m
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  agent_api_serve:
+    image: reg.new3m.com/douyu/agent_api_serve:sit_latest
+    container_name: agent_api_serve
+    restart: always
+    cpus: 1
+    ports:
+      - 8010:8010
+    network_mode: "host"
+    volumes:
+      - /usr/share/zoneinfo/PRC:/etc/localtime
+      - /data/app/common:/common
+      - /data/app/res_server:/data/app/res_server
+      - /data/app/logs/agent_api_serve:/src/storage/logs
+    env_file:
+      - ./dy-agent-env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010"]
+      interval: 1m
+      timeout: 5s
+      retries: 3
+      start_period: 20s
